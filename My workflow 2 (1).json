@@ -1,0 +1,445 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead_intake",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -544,
+        0
+      ],
+      "id": "317e2d9d-eba0-4b5c-8990-146fa9710836",
+      "name": "Webhook",
+      "webhookId": "88dc8786-2f90-417c-9226-927d7bd95d48"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ad4545f7-3550-43f7-9f9e-3319ea12926d",
+              "name": "name",
+              "value": "={{ $json.body.name }}",
+              "type": "string"
+            },
+            {
+              "id": "ff14d140-af6c-43fa-b100-2bcbf478f6bd",
+              "name": "email",
+              "value": "={{ $json.body.email }}",
+              "type": "string"
+            },
+            {
+              "id": "e86fd997-44db-45b3-9544-b8f083bceb68",
+              "name": "phone",
+              "value": "={{ $json.body.phone }}",
+              "type": "string"
+            },
+            {
+              "id": "f2d3f498-5c2e-4d73-8c8d-ce473c2be281",
+              "name": "city",
+              "value": "={{ $json.body.city }}",
+              "type": "string"
+            },
+            {
+              "id": "b060ed48-487a-4184-98f3-e5455d271a3d",
+              "name": "budget",
+              "value": "={{ $json.body.budget }}",
+              "type": "string"
+            },
+            {
+              "id": "112f98f9-e7a1-437a-8517-1a2faef47380",
+              "name": "property",
+              "value": "={{ $json.body.property }}",
+              "type": "string"
+            },
+            {
+              "id": "75c7f744-6dab-47d1-87a2-d5518885aa03",
+              "name": "timeline",
+              "value": "={{ $json.body.timeline }}",
+              "type": "string"
+            },
+            {
+              "id": "cfdfad6d-9050-4b30-a804-85e63c0ac7b6",
+              "name": "message",
+              "value": "={{ $json.body.message }}",
+              "type": "string"
+            },
+            {
+              "id": "c2ade46b-fc8e-43f8-952a-39e486af8e22",
+              "name": "source ",
+              "value": "Website",
+              "type": "string"
+            },
+            {
+              "id": "579a8262-5a36-4e57-85b9-bf722d375943",
+              "name": "status ",
+              "value": "NEW",
+              "type": "string"
+            },
+            {
+              "id": "ea8be6e5-74b3-4fce-b56f-ec93888a78cd",
+              "name": "lead_score",
+              "value": 0,
+              "type": "number"
+            },
+            {
+              "id": "4d7268c4-9ca0-43a8-936a-a808d58051ed",
+              "name": "created_at",
+              "value": "={{$now}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -336,
+        16
+      ],
+      "id": "c89dc4af-203f-40f6-b738-2dda8c040764",
+      "name": "Normalize Lead Data"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get lead data from previous node\nconst lead = $input.first().json;\n\n// Store validation errors\nconst errors = [];\n\n/* ---------- Required Field Validation ---------- */\n\nif (!lead.name || lead.name.trim() === \"\") {\n  errors.push(\"Name is required\");\n}\n\nif (!lead.email || lead.email.trim() === \"\") {\n  errors.push(\"Email is required\");\n}\n\nif (!lead.phone || lead.phone.trim() === \"\") {\n  errors.push(\"Phone number is required\");\n}\n\nif (!lead.city || lead.city.trim() === \"\") {\n  errors.push(\"City is required\");\n}\n\nif (!lead.budget || lead.budget.trim() === \"\") {\n  errors.push(\"Budget is required\");\n}\n\nif (!lead.property || lead.property.trim() === \"\") {\n  errors.push(\"Property type is required\");\n}\n\nif (!lead.timeline || lead.timeline.trim() === \"\") {\n  errors.push(\"Timeline is required\");\n}\n\n/* ---------- Email Validation ---------- */\n\nif (\n  lead.email &&\n  !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(lead.email)\n) {\n  errors.push(\"Invalid email format\");\n}\n\n/* ---------- Phone Validation ---------- */\n\nif (\n  lead.phone &&\n  !/^[6-9]\\d{9}$/.test(lead.phone)\n) {\n  errors.push(\"Invalid phone number\");\n}\n\n/* ---------- Determine Validation Status ---------- */\n\nconst valid = errors.length === 0;\n\n/* ---------- Return ---------- */\n\nreturn [\n  {\n    json: {\n      ...lead,\n      valid,\n      errors\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -144,
+        16
+      ],
+      "id": "c6a25e15-e594-408b-8def-d440b0217b48",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.1-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        64,
+        256
+      ],
+      "id": "3516e777-bace-40e3-a666-a915597e69ee",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Name: {{$json.name}}\n\nEmail: {{$json.email}}\n\nPhone: {{$json.phone}}\n\nCity: {{$json.city}}\n\nBudget: {{$json.budget}}\n\nProperty: {{$json.property}}\n\nTimeline: {{$json.timeline}}\n\nMessage: {{$json.message}}",
+        "options": {
+          "systemMessage": "You are an AI assistant for a Real Estate CRM.\n\nAnalyze the lead and return ONLY valid JSON.\n\nRules:\n- Give a lead_score from 0 to 100.\n- Give priority as High, Medium or Low.\n- Write a short ai_summary.\n\nScoring Rules:\n\nBudget:\n- Above 1 Crore = +30\n- 50 Lakhs to 1 Crore = +20\n- Below 50 Lakhs = +10\n\nTimeline:\n- Immediate = +30\n- 1 month = +25\n- 3 months = +15\n- More than 3 months = +5\n\nProperty:\n- Villa = +20\n- Apartment = +15\n- Plot = +10\n\nReturn ONLY this JSON:\n\n{\n  \"lead_score\": 0,\n  \"priority\": \"\",\n  \"ai_summary\": \"\"\n}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        64,
+        16
+      ],
+      "id": "72c88172-565b-44ae-b2ad-85c8f999c070",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Original lead\nconst lead = $('Code in JavaScript').first().json;\n\n// AI output string\nconst aiText = $input.first().json.output;\n\n// Convert string to JSON\nconst aiResult = JSON.parse(aiText);\n\n// Merge\nreturn [\n  {\n    json: {\n      ...lead,\n      ...aiResult\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        16
+      ],
+      "id": "f8a80da9-92f4-4cbc-a15f-39f77d759d7c",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1lZRH4lti9fCpwYhwQCDlcPu_c3D4Eh4vtaUd1sbqvq8",
+          "mode": "list",
+          "cachedResultName": "Real Estate CRM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1lZRH4lti9fCpwYhwQCDlcPu_c3D4Eh4vtaUd1sbqvq8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1lZRH4lti9fCpwYhwQCDlcPu_c3D4Eh4vtaUd1sbqvq8/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "name": "={{ $json.name }}",
+            "email": "={{ $json.email }}",
+            "phone": "={{ $json.phone }}",
+            "city": "={{ $json.city }}",
+            "budget": "={{ $json.budget }}",
+            "property": "={{ $json.property }}",
+            "message": "={{ $json.message }}",
+            "timeline": "={{ $json.timeline }}",
+            "source": "={{ $json['source '] }}",
+            "status": "={{ $json['status '] }}",
+            "lead_score": "={{ $json.lead_score }}",
+            "created_at": "={{ $json.created_at }}",
+            "ai_summary": "={{ $json.ai_summary }}",
+            "priority": "={{ $json.priority }}"
+          },
+          "matchingColumns": [
+            "email"
+          ],
+          "schema": [
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "city",
+              "displayName": "city",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "budget",
+              "displayName": "budget",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "property",
+              "displayName": "property",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "timeline",
+              "displayName": "timeline",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "lead_score",
+              "displayName": "lead_score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ai_summary",
+              "displayName": "ai_summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        688,
+        80
+      ],
+      "id": "f71b2ca4-3148-49ad-b948-94d8bf056824",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "xJRWDlxtzaYFoGcF",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize Lead Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Lead Data": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "9815ea97-7df0-4846-b008-3ad2b0db5084",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ebb5bc83d6a4a17ad6b10f98b9666674ee97ba14444f7975fc3daf0b541aea70"
+  },
+  "nodeGroups": [],
+  "id": "TkYKaS2weDUrgvmW",
+  "tags": []
+}
